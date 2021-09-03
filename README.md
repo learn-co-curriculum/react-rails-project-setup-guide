@@ -40,6 +40,8 @@ product.
 - [Conclusion](#conclusion)
 - [Resources](#resources)
 
+---
+
 ## Environment Setup
 
 Before starting, make sure your computer has all the necessary tools to build
@@ -251,6 +253,8 @@ For additional support, check out these guides on Heroku:
 [heroku rails deploying guide]: https://devcenter.heroku.com/articles/getting-started-with-rails6
 [troubleshooting guide on heroku]: https://devcenter.heroku.com/articles/getting-started-with-rails6#troubleshooting
 
+---
+
 ## Project Setup
 
 Now that your environment setup is done, we can get on to the fun part: creating
@@ -269,7 +273,7 @@ $ rails new example-project -T -d=postgresql --api
 ```
 
 - `-T` skips creation of test files
-- `-d=postgresql` configures Postgresql as the database instead of SQLite
+- `-d=postgresql` configures PostgreSQL as the database instead of SQLite
 - `--api` configures the app with a limited set of middleware, and skips
   views/helpers/assets on resource generation.
 
@@ -278,8 +282,8 @@ This command will also initialize Git in your project folder.
 #### Check Your Work: Rails Setup
 
 At this point, you should verify that the application is set up correctly and in
-particular that you are able to use Postgresql as the database. Run this command
-to create a database for your application:
+particular that you are able to use PostgreSQL as the database. `cd` into the
+project folder and run this command to create a database for your application:
 
 ```console
 $ rails db:create
@@ -294,8 +298,7 @@ proceeding.
 
 #### Configuring Gems
 
-We recommend adding the [ActiveModelSerializers][ams] gem to your project. `cd`
-into the project folder and run:
+We recommend adding the [ActiveModelSerializers][ams] gem to your project:
 
 ```console
 $ bundle add active_model_serializers
@@ -354,8 +357,7 @@ gem 'active_model_serializers', '~> 0.10.12'
 ```
 
 Finally, in order to configure your project to run in a production environment
-with Heroku, you'll need to add update the `Gemfile.lock` file with this
-command:
+with Heroku, you'll need to update the `Gemfile.lock` file with this command:
 
 ```console
 $ bundle lock --add-platform x86_64-linux
@@ -416,7 +418,7 @@ module here means all of your controllers will be able to work with cookies.
 
 As a last step of the Rails setup, let's verify that the cookies and sessions
 middleware is working as expected. To do this, make a new controller action in
-the `ApplicationController` that uses the `sessions` hash and returns a JSON
+the `ApplicationController` that uses the `session` hash and returns a JSON
 response:
 
 ```rb
@@ -478,7 +480,7 @@ instead of yarn to manage your dependencies.
 When running React and Rails in development, you'll need two separate servers
 running on different ports: React on port 4000, and Rails on port 3000. Whenever
 you want to make a request to your Rails API from React, you'll need to make
-sure that our requests are going to port 3000.
+sure that requests are going to port 3000.
 
 You can simplify this process of making requests to the correct port by using
 `create-react-app` in development to [proxy the requests to our API][proxy].
@@ -547,7 +549,7 @@ Your final `client/package.json` file should look something like this:
 Now that you've configured React, it's a good time to check that your settings
 are correct and that you're able to make a request from React and receive a
 response from Rails. First, update the starter code in the `client/src/App.js`
-file to make a request to the route we set up previously in Rails:
+file to make a request to the route you set up previously in Rails:
 
 ```jsx
 import { useState, useEffect } from "react";
@@ -740,7 +742,7 @@ $ heroku logs --tail
 ```
 
 Press `control + c` to exit the logs. You can also run a Rails console and other
-Rails commands with `heroku run`:
+Rails commands on the production server with `heroku run`:
 
 ```console
 $ heroku run rails c
@@ -748,7 +750,7 @@ $ heroku run rails c
 
 #### Configuring React and Rails for Client-Side Routing
 
-In our many React applications, it's helpful to use React Router to handle
+In many React applications, it's helpful to use React Router to handle
 client-side routing. Client-side routing means that a user should be able to
 navigate to the React application; load all the HTML/CSS/JavaScript code just
 **once**; and then click through links in our site to navigate different pages
@@ -936,6 +938,8 @@ new deployment on Heroku! Otherwise, you can continue using
 
 [auto deploy]: https://devcenter.heroku.com/articles/github-integration
 
+---
+
 ## Conclusion
 
 Congrats on setting up your Rails/React project! 🎉
@@ -957,6 +961,8 @@ You should also make sure to update your project's README file with details
 about your project.
 
 We'll let you take it from here. Good luck!
+
+---
 
 ## Resources
 
