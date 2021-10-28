@@ -52,7 +52,7 @@ project, you'll be able to do so more easily.
 ### Requirements
 
 - Ruby 2.7.4
-- NodeJS (v14 or higher), and npm
+- NodeJS (v16), and npm
 - Heroku CLI
 - Postgresql
 
@@ -92,10 +92,13 @@ Verify you are running a recent version of Node with:
 $ node -v
 ```
 
-If your Node version is less than 14, update it with:
+If your Node version is not 16.x.x, install it and set it as the current and
+default version with:
 
 ```console
-$ nvm install node
+$ nvm install 16
+$ nvm use 16
+$ nvm alias default 16
 ```
 
 You can also update your npm version with:
