@@ -762,8 +762,12 @@ without making another request to the server for a new HTML document.
 To install React Router, run:
 
 ```console
-$ npm install react-router-dom --prefix client
+$ npm install react-router-dom@5 --prefix client
 ```
+
+> **Note**: make sure to include `@5` in the install command to install React
+> Router version 5 (which is what we cover in the curriculum), instead of
+> version 6.
 
 Next, update the `App` component to use a couple routes for testing purposes:
 
