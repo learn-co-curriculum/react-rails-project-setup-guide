@@ -155,7 +155,7 @@ To install Postgres for WSL, run the following commands from your Ubuntu termina
 
 ```console
 $ sudo apt update
-$ sudo apt install postgresql postgresql-contrib
+$ sudo apt install postgresql postgresql-contrib libpq-dev
 ```
 
 Then confirm that Postgres was installed successfully:
