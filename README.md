@@ -880,7 +880,7 @@ the Rails server. To do this, you can use the same `heroku-postbuild` script
 locally as Heroku will run in production to build the React project:
 
 ```console
-$ npm run heroku postbuild
+$ npm run heroku-postbuild
 ```
 
 Then, run the Rails server:
