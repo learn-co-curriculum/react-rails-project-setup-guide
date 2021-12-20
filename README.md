@@ -274,6 +274,17 @@ GitHub.
 
 ### Rails Setup
 
+> **Notes**: If you ran `gem install rails` to install the latest version of
+> Rails on your system, it's likely that you'll be using [Rails 7][rails 7]. The
+> labs in Phase 4 use Rails 6, and there are some small differences between the
+> two versions. We'll point out these differences in the guide below. If you'd
+> like to use Rails 6 instead, you can follow [this guide][rails version guide]
+> to use a specific version of Rails when generating your new project.
+
+[rails 7]: https://rubyonrails.org/2021/12/15/Rails-7-fulfilling-a-vision
+[rails version guide]:
+  https://www.aloucaslabs.com/miniposts/using-a-specific-rails-version-when-you-generate-a-new-rails-app-with-rails-new-command
+
 To start, `cd` into a directory where you'd like to create your project. Then
 run this command to generate a project folder with all the starter code for a
 new Rails API:
@@ -367,6 +378,20 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'active_model_serializers', '~> 0.10.12'
 ```
 
+> **Note for Rails 7**: There is currently an [open issue][ams issue] with the
+> `active_model_serializers` gem that means it won't work with Rails 7. If you
+> run into an issue when installing `active_model_serializers`, try updating
+> your Gemfile to use the following source:
+>
+> ```rb
+> gem 'active_model_serializers',
+>     '~> 0.10.12',
+>     git: 'https://github.com/jpawlyn/active_model_serializers.git',
+>     branch: '0-10-stable'
+> ```
+
+[ams issue]: https://github.com/rails-api/active_model_serializers/pull/2428
+
 Finally, in order to configure your project to run in a production environment
 with Heroku, you'll need to update the `Gemfile.lock` file with this command:
 
@@ -450,7 +475,10 @@ Also, create a route that uses this controller action:
 
 ```rb
 # config/routes.rb
-Rails.application.routes.draw { get '/hello', to: 'application#hello_world' }
+Rails.application.routes.draw do
+  # route to test your configuration
+  get '/hello', to: 'application#hello_world'
+end
 ```
 
 Finally, run your application:
