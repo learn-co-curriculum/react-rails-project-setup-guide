@@ -82,7 +82,8 @@ $ gem install bundler
 $ gem install rails
 ```
 
-[supported runtimes]: https://devcenter.heroku.com/articles/ruby-support#supported-runtimes
+[supported runtimes]:
+  https://devcenter.heroku.com/articles/ruby-support#supported-runtimes
 
 ### Install NodeJS
 
@@ -140,7 +141,8 @@ logging in, close the browser window and return to the terminal. You can run
 `heroku whoami` in the terminal to verify that you have logged in successfully.
 
 [heroku signup]: https://signup.heroku.com/devcenter
-[heroku cli]: https://devcenter.heroku.com/articles/heroku-cli#download-and-install
+[heroku cli]:
+  https://devcenter.heroku.com/articles/heroku-cli#download-and-install
 
 ### Install Postgresql
 
@@ -151,7 +153,8 @@ you'll need to set it up.
 
 #### PostgreSQL Installation for WSL
 
-To install Postgres for WSL, run the following commands from your Ubuntu terminal:
+To install Postgres for WSL, run the following commands from your Ubuntu
+terminal:
 
 ```console
 $ sudo apt update
@@ -196,7 +199,8 @@ Then enter `control + d` or type `logout` to exit.
 [This guide][postgresql wsl] has more info on setting up Postgres on WSL if you
 get stuck.
 
-[postgresql wsl]: https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-database#install-postgresql
+[postgresql wsl]:
+  https://docs.microsoft.com/en-us/windows/wsl/tutorials/wsl-database#install-postgresql
 
 #### Postgresql Installation for OSX
 
@@ -221,10 +225,10 @@ troubleshoot:
 - If you're on a Mac and got a server connection error when you tried to run
   `rails db:create`, one option for solving this problem for Mac users is to
   install the Postgres app. To do this, first uninstall `postgresql` by running
-  `brew remove postgresql`. Next, download the app from the
-  [Postgres downloads page][postgres downloads page] and install it. Launch the
-  app and click "Initialize" to create a new server. You should now be able to
-  run `rails db:create`.
+  `brew remove postgresql`. Next, download the app from the [Postgres downloads
+  page][postgres downloads page] and install it. Launch the app and click
+  "Initialize" to create a new server. You should now be able to run
+  `rails db:create`.
 
 - If you're using WSL and got the following error running `rails db:create`:
 
@@ -253,17 +257,20 @@ For additional support, check out these guides on Heroku:
 - [Rails Troubleshooting on Heroku][troubleshooting guide on heroku]
 
 [postgres downloads page]: https://postgresapp.com/downloads.html
-[heroku rails deploying guide]: https://devcenter.heroku.com/articles/getting-started-with-rails6
-[troubleshooting guide on heroku]: https://devcenter.heroku.com/articles/getting-started-with-rails6#troubleshooting
+[heroku rails deploying guide]:
+  https://devcenter.heroku.com/articles/getting-started-with-rails6
+[troubleshooting guide on heroku]:
+  https://devcenter.heroku.com/articles/getting-started-with-rails6#troubleshooting
 
 ---
 
 ## Project Setup
 
 Now that your environment setup is done, we can get on to the fun part: creating
-your project's starter code! In this section, we'll walk through the steps needed
-to generate a new Rails application from scratch; set up some of the configuration;
-add a React application; and connect your project repository with GitHub.
+your project's starter code! In this section, we'll walk through the steps
+needed to generate a new Rails application from scratch; set up some of the
+configuration; add a React application; and connect your project repository with
+GitHub.
 
 ### Rails Setup
 
@@ -344,17 +351,18 @@ gem 'bootsnap', '>= 1.4.4', require: false
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  gem 'byebug', platforms: %i[mri mingw x64_mingw]
 end
 
 group :development do
   gem 'listen', '~> 3.3'
+
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
 gem 'active_model_serializers', '~> 0.10.12'
 ```
@@ -378,6 +386,7 @@ support back in, update your application's configuration in the
 module ExampleProject
   class Application < Rails::Application
     config.load_defaults 6.1
+
     # This is set in apps generated with the --api flag, and removes session/cookie middleware
     config.api_only = true
 
@@ -392,8 +401,8 @@ module ExampleProject
 end
 ```
 
-This will add in the necessary [middleware][] for working with sessions and cookies
-in your application.
+This will add in the necessary [middleware][] for working with sessions and
+cookies in your application.
 
 The last line also adds some additional security to your cookies by also
 configuring the as `SameSite` policy for your cookies as `strict`, which means
@@ -401,7 +410,8 @@ that the browser will only send these cookies in requests to websites that are
 on the same domain. This is a relatively new feature, but an important one for
 security! You can read more about [`SameSite` cookies here][same site cookies].
 
-[middleware]: https://guides.rubyonrails.org/rails_on_rack.html#action-dispatcher-middleware-stack
+[middleware]:
+  https://guides.rubyonrails.org/rails_on_rack.html#action-dispatcher-middleware-stack
 [same site cookies]: https://web.dev/samesite-cookies-explained/
 
 To access the `cookies` hash in your controllers, you also need to include the
@@ -440,9 +450,7 @@ Also, create a route that uses this controller action:
 
 ```rb
 # config/routes.rb
-Rails.application.routes.draw do
-  get "/hello", to: "application#hello_world"
-end
+Rails.application.routes.draw { get '/hello', to: 'application#hello_world' }
 ```
 
 Finally, run your application:
@@ -641,13 +649,12 @@ When you push up new code to Heroku, it will detect if there is a `package.json`
 file in the root of your application, and will run the `heroku-postbuild` script
 defined in the `package.json` file. This script does the following:
 
-- `clean`: First, it deletes all files in the `public` directory (to
-  remove any old versions of your React application)
-- `build`: Next, it installs all the project dependencies in the
-  `client` folder with `npm install` and builds a production version of your
-  React application using webpack, which creates a bundled and minified version
-  of your codebase for optimal performance, which is output to a `client/build`
-  folder
+- `clean`: First, it deletes all files in the `public` directory (to remove any
+  old versions of your React application)
+- `build`: Next, it installs all the project dependencies in the `client` folder
+  with `npm install` and builds a production version of your React application
+  using webpack, which creates a bundled and minified version of your codebase
+  for optimal performance, which is output to a `client/build` folder
 - `deploy`: Finally, it copies the the files from the `client/build` folder to
   the `public` folder, which will be served by Rails whenever a request comes in
   to a non-API route in the application
@@ -844,9 +851,11 @@ Here's how it works:
 ```rb
 # config/routes.rb
 Rails.application.routes.draw do
-  get "/hello", to: "application#hello_world"
+  get '/hello', to: 'application#hello_world'
 
-  get "*path", to: "fallback#index", constraints: ->(req) { !req.xhr? && req.format.html? }
+  get '*path',
+      to: 'fallback#index',
+      constraints: ->(req) { !req.xhr? && req.format.html? }
 end
 ```
 
@@ -854,7 +863,8 @@ All the routes for our API are defined **first** in the `routes.rb` file. You
 can optionally use [namespacing][] to differentiate the API requests from other
 requests.
 
-[namespacing]: https://guides.rubyonrails.org/routing.html#controller-namespaces-and-routing
+[namespacing]:
+  https://guides.rubyonrails.org/routing.html#controller-namespaces-and-routing
 
 The last method in the `routes.rb` file handles all other `GET` requests by
 sending them to a special `FallbackController` with an `index` action:
@@ -920,15 +930,16 @@ check any of the options such as 'Add a README file', 'Add a .gitignore file',
 etc — since you're importing an existing repository, creating any of those files
 on GitHub will cause issues.
 
-[create repo]: https://docs.github.com/en/github/importing-your-projects-to-github/importing-source-code-to-github/adding-an-existing-project-to-github-using-the-command-line#adding-a-project-to-github-without-github-cli
+[create repo]:
+  https://docs.github.com/en/github/importing-your-projects-to-github/importing-source-code-to-github/adding-an-existing-project-to-github-using-the-command-line#adding-a-project-to-github-without-github-cli
 
-If you're working with a partner,
-[add them as a collaborator][add collaborator] on GitHub. From your repo on
-GitHub, go to Settings > Manage Access > Invite a collaborator and enter your
-partner's username. Once your partner has access, they should git **clone** (not
-fork) the repository.
+If you're working with a partner, [add them as a collaborator][add collaborator]
+on GitHub. From your repo on GitHub, go to Settings > Manage Access > Invite a
+collaborator and enter your partner's username. Once your partner has access,
+they should git **clone** (not fork) the repository.
 
-[add collaborator]: https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-user-account/managing-access-to-your-personal-repositories/inviting-collaborators-to-a-personal-repository
+[add collaborator]:
+  https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-user-account/managing-access-to-your-personal-repositories/inviting-collaborators-to-a-personal-repository
 
 Finally, connect the GitHub remote repository to your local repository and push
 up your code:
@@ -979,6 +990,7 @@ We'll let you take it from here. Good luck!
 - [Heroku Rails Support](https://devcenter.heroku.com/articles/getting-started-with-rails6)
 - [Heroku Procfile][procfile]
 
-[project template]: https://github.com/learn-co-curriculum/project-template-react-rails-api
+[project template]:
+  https://github.com/learn-co-curriculum/project-template-react-rails-api
 [proxy]: https://create-react-app.dev/docs/proxying-api-requests-in-development/
 [procfile]: https://devcenter.heroku.com/articles/procfile
