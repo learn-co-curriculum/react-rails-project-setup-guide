@@ -513,6 +513,13 @@ Then, run:
 $ npx create-react-app client --use-npm
 ```
 
+**NOTE:**
+If you get an error that says "We no longer support global installation of Create React App" try the following command instead:
+
+```console
+npx create-react-app@latest my-app --use-npm
+```
+
 This will create a new React application in a `client` folder, and will use npm
 instead of yarn to manage your dependencies.
 
