@@ -517,7 +517,7 @@ $ npx create-react-app client --use-npm
 If you get an error that says "We no longer support global installation of Create React App" try the following command instead:
 
 ```console
-npx create-react-app@latest my-app --use-npm
+npx create-react-app@latest client --use-npm
 ```
 
 This will create a new React application in a `client` folder, and will use npm
