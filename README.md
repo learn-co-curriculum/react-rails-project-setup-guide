@@ -28,15 +28,18 @@ product.
   - [Requirements](#requirements)
   - [Install the Latest Ruby Version](#install-the-latest-ruby-version)
   - [Install NodeJS](#install-nodejs)
-  - [Sign Up for a Heroku Account](#sign-up-for-a-heroku-account)
-  - [Download the Heroku CLI Application](#download-the-heroku-cli-application)
   - [Install Postgresql](#install-postgresql)
+  - [Set Up a Render Account](#set-up-a-render-account)
   - [Environment Troubleshooting](#environment-troubleshooting)
 - [Project Setup](#project-setup)
   - [Rails Setup](#rails-setup)
   - [React Setup](#react-setup)
-  - [Deploying](#deploying)
-  - [GitHub](#github)
+- [GitHub](#github)
+- [Deploying](#deploying)
+  - [Preparing your App for Deployment](#preparing-your-app-for-deployment)
+  - [Creating the App Database](#creating-the-app-database)
+  - [Creating the Render Web Service](#creating-the-render-web-service)
+- [Configuring React and Rails for Client-Side Routing](#configuring-react-and-rails-for-client-side-routing)
 - [Conclusion](#conclusion)
 - [Resources](#resources)
 
@@ -53,8 +56,8 @@ project, you'll be able to do so more easily.
 
 - Ruby 2.7.4
 - NodeJS (v16), and npm
-- Heroku CLI
 - Postgresql
+- Render account
 
 ### Install the Latest Ruby Version
 
@@ -64,12 +67,7 @@ Verify which version of Ruby you're running by entering this in the terminal:
 $ ruby -v
 ```
 
-Make sure that the Ruby version you're running is listed in the [supported
-runtimes][] by Heroku. At the time of writing, supported versions are 2.6.8,
-2.7.4, or 3.0.2. Our recommendation is 2.7.4, but make sure to check the site
-for the latest supported versions.
-
-If it's not, you can use `rvm` to install a newer version of Ruby:
+We recommend version 2.7.4. If you need to upgrade you can install it using rvm:
 
 ```console
 $ rvm install 2.7.4 --default
@@ -81,9 +79,6 @@ You should also install the latest versions of `bundler` and `rails`:
 $ gem install bundler
 $ gem install rails
 ```
-
-[supported runtimes]:
-  https://devcenter.heroku.com/articles/ruby-support#supported-runtimes
 
 ### Install NodeJS
 
@@ -108,45 +103,9 @@ You can also update your npm version with:
 $ npm i -g npm
 ```
 
-### Sign Up for a Heroku Account
-
-You can sign up at for a free account at
-[https://signup.heroku.com/devcenter][heroku signup].
-
-### Download the Heroku CLI Application
-
-Download the [Heroku CLI][heroku cli]. For OSX users, you can use Homebrew:
-
-```console
-$ brew tap heroku/brew && brew install heroku
-```
-
-For WSL users, run this command in the Ubuntu terminal:
-
-```console
-$ curl https://cli-assets.heroku.com/install.sh | sh
-```
-
-If you run into issues installing, check out the [Heroku CLI][heroku cli]
-downloads page for more options.
-
-After downloading, you can login via the CLI in the terminal:
-
-```console
-$ heroku login
-```
-
-This will open a browser window to log you into your Heroku account. After
-logging in, close the browser window and return to the terminal. You can run
-`heroku whoami` in the terminal to verify that you have logged in successfully.
-
-[heroku signup]: https://signup.heroku.com/devcenter
-[heroku cli]:
-  https://devcenter.heroku.com/articles/heroku-cli#download-and-install
-
 ### Install Postgresql
 
-Heroku requires that you use PostgreSQL for your database instead of SQLite.
+Render requires that you use PostgreSQL for your database instead of SQLite.
 PostgreSQL (or just Postgres for short) is an advanced database management
 system with more features than SQLite. If you don't already have it installed,
 you'll need to set it up.
@@ -217,6 +176,30 @@ service:
 $ brew services start postgresql
 ```
 
+### Set Up a Render Account
+
+You can sign up for a free account at
+[https://dashboard.render.com/register][Render signup]. We recommend that you
+sign up using GitHub as that will make it a little easier for you to connect
+Render to your GitHub account.
+
+[Render signup]: https://dashboard.render.com/register
+
+Once you've completed the signup process, you will be taken to the Render
+dashboard. In order to connect Render to your GitHub account, you'll need to
+click the "New Web Service" button in the "Web Services" box. On the next page,
+you will see a GitHub heading on the right side and below that a link that's
+labeled either "Connect account" or "Configure account". Click that link, then
+in the modal that appears click "Install." You should then be taken back to the
+"Create a New Web Service" page, which should now show a list of your GitHub
+repos. We won't actually create a web service just yet so you are free to
+navigate away from the page at this point.
+
+Next, we'll set up a PostgreSQL instance. Click the "New +" button at the top of
+the page and select "PostgreSQL". Enter a name for your PostgreSQL instance. The
+remaining fields can be left as is. Click "Create Database" at the bottom of the
+page.
+
 ### Environment Troubleshooting
 
 If you ran into any errors along the way, here are some things you can try to
@@ -248,19 +231,10 @@ troubleshoot:
 - If you deployed successfully, but you ran into issues when you visited the
   site, make sure you migrated and seeded the database. Also, make sure that
   your application works locally and try to debug any issues on your local
-  machine before re-deploying. You can also check the logs on the server by
-  running `heroku logs`.
-
-For additional support, check out these guides on Heroku:
-
-- [Deploying a Rails 6 App to Heroku][heroku rails deploying guide]
-- [Rails Troubleshooting on Heroku][troubleshooting guide on heroku]
+  machine before re-deploying. You can also check the deployment log on the
+  app's page in the Render dashboard.
 
 [postgres downloads page]: https://postgresapp.com/downloads.html
-[heroku rails deploying guide]:
-  https://devcenter.heroku.com/articles/getting-started-with-rails6
-[troubleshooting guide on heroku]:
-  https://devcenter.heroku.com/articles/getting-started-with-rails6#troubleshooting
 
 ---
 
@@ -268,8 +242,8 @@ For additional support, check out these guides on Heroku:
 
 Now that your environment setup is done, we can get on to the fun part: creating
 your project's starter code! In this section, we'll walk through the steps
-needed to generate a new Rails application from scratch; set up some of the
-configuration; add a React application; and connect your project repository with
+needed to generate a new Rails application from scratch, set up some of the
+configuration, add a React application, and connect your project repository with
 GitHub.
 
 ### Rails Setup
@@ -277,9 +251,10 @@ GitHub.
 > **Notes**: If you ran `gem install rails` to install the latest version of
 > Rails on your system, it's likely that you'll be using [Rails 7][rails 7]. The
 > labs in Phase 4 use Rails 6, and there are some small differences between the
-> two versions. We'll point out these differences in the guide below. If you'd
-> like to use Rails 6 instead, you can follow [this guide][rails version guide]
-> to use a specific version of Rails when generating your new project.
+> two versions.  This guide should work for Rails 7 as well, but some things may
+> look a little different than what is shown below. If you'd like to use Rails 6
+> instead, you can follow [this guide][rails version guide] to use a specific
+> version of Rails when generating your new project.
 
 [rails 7]: https://rubyonrails.org/2021/12/15/Rails-7-fulfilling-a-vision
 [rails version guide]:
@@ -378,22 +353,8 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'active_model_serializers', '~> 0.10.12'
 ```
 
-> **Note for Rails 7**: There is currently an [open issue][ams issue] with the
-> `active_model_serializers` gem that means it won't work with Rails 7. If you
-> run into an issue when installing `active_model_serializers`, try updating
-> your Gemfile to use the following source:
->
-> ```rb
-> gem 'active_model_serializers',
->     '~> 0.10.12',
->     git: 'https://github.com/jpawlyn/active_model_serializers.git',
->     branch: '0-10-stable'
-> ```
-
-[ams issue]: https://github.com/rails-api/active_model_serializers/pull/2428
-
 Finally, in order to configure your project to run in a production environment
-with Heroku, you'll need to update the `Gemfile.lock` file with this command:
+with Render, you'll need to update the `Gemfile.lock` file with this command:
 
 ```console
 $ bundle lock --add-platform x86_64-linux
@@ -429,11 +390,11 @@ end
 This will add in the necessary [middleware][] for working with sessions and
 cookies in your application.
 
-The last line also adds some additional security to your cookies by also
-configuring the as `SameSite` policy for your cookies as `strict`, which means
-that the browser will only send these cookies in requests to websites that are
-on the same domain. This is a relatively new feature, but an important one for
-security! You can read more about [`SameSite` cookies here][same site cookies].
+The last line also adds some additional security to your cookies by configuring
+the `SameSite` policy for your cookies as `strict`, which means that the browser
+will only send these cookies in requests to websites that are on the same
+domain. This is a relatively new feature, but an important one for security! You
+can read more about [`SameSite` cookies here][same site cookies].
 
 [middleware]:
   https://guides.rubyonrails.org/rails_on_rack.html#action-dispatcher-middleware-stack
@@ -513,8 +474,8 @@ Then, run:
 $ npx create-react-app client --use-npm
 ```
 
-**NOTE:**
-If you get an error that says "We no longer support global installation of Create React App" try the following command instead:
+**NOTE:** If you get an error that says "We no longer support global
+installation of Create React App" try the following command instead:
 
 ```console
 npx create-react-app@latest client --use-npm
@@ -643,162 +604,192 @@ $ git add .
 $ git commit -m 'React setup'
 ```
 
-### Deploying
+## GitHub
+
+First, [create a new remote repository][create repo] on GitHub. Head to
+[github.com](https://github.com) and click the **+** icon in the top-right
+corner and follow the steps to create a new repository. **Important**: don't
+check any of the options such as 'Add a README file', 'Add a .gitignore file',
+etc. — since you're importing an existing repository, creating any of those files
+on GitHub will cause issues.
+
+[create repo]:
+  https://docs.github.com/en/github/importing-your-projects-to-github/importing-source-code-to-github/adding-an-existing-project-to-github-using-the-command-line#adding-a-project-to-github-without-github-cli
+
+If you're working with a partner, [add them as a collaborator][add collaborator]
+on GitHub. From your repo on GitHub, go to Settings > Manage Access > Invite a
+collaborator and enter your partner's username. Once your partner has access,
+they should git **clone** (not fork) the repository.
+
+[add collaborator]:
+  https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-user-account/managing-access-to-your-personal-repositories/inviting-collaborators-to-a-personal-repository
+
+Finally, connect the GitHub remote repository to your local repository and push
+up your code:
+
+```console
+$ git remote add origin git@github.com:your-username/your-repo-name.git
+$ git push -u origin main
+```
+
+## Deploying
 
 It's recommended that you deploy your project early, and push up changes often,
 to ensure that your code works equally well in production and development
 environments.
 
-If you've already set up your environment to deploy to Heroku, you can run the
-commands below to deploy your application. If not, make sure to check out the
-Environment Setup section above and ensure you have the Heroku CLI installed.
+### Preparing your App for Deployment
 
-First, you'll need to add a configuration file for React that will tell Heroku
-how to build our application when it's deployed. Remember, `create-react-app` is
-ultimately used to create a **single-page application**, with just one HTML file
-that will serve all of our React code. We can use Rails to serve that HTML file
-by adding it to a `public` directory in the Rails application, so our goal after
-deploying is to have a `public` folder with all of our production-ready React
-code.
+Before we can deploy our app to Render, we need to make a few modifications.
 
-To achieve this, in the **root** directory of your project (not the `client`
-directory), create a `package.json` file with the following:
+First, open the `config/database.yml` file, scroll down to the `production`
+section, and update the code to the following:
 
-```json
-{
-  "name": "example-project",
-  "description": "Build scripts for Heroku",
-  "engines": {
-    "node": ">= 14"
-  },
-  "scripts": {
-    "build": "npm install --prefix client && npm run build --prefix client",
-    "clean": "rm -rf public",
-    "deploy": "cp -a client/build/. public/",
-    "heroku-postbuild": "npm run clean && npm run build && npm run deploy"
-  }
-}
+```yml
+production:
+  <<: *default
+  url: <%= ENV['DATABASE_URL'] %>
 ```
 
-When you push up new code to Heroku, it will detect if there is a `package.json`
-file in the root of your application, and will run the `heroku-postbuild` script
-defined in the `package.json` file. This script does the following:
+Next, open `config/puma.rb` and find the section shown below. Here, you will
+un-comment out two lines of code and make one small edit:
 
-- `clean`: First, it deletes all files in the `public` directory (to remove any
-  old versions of your React application)
-- `build`: Next, it installs all the project dependencies in the `client` folder
-  with `npm install` and builds a production version of your React application
-  using webpack, which creates a bundled and minified version of your codebase
-  for optimal performance, which is output to a `client/build` folder
-- `deploy`: Finally, it copies the the files from the `client/build` folder to
-  the `public` folder, which will be served by Rails whenever a request comes in
-  to a non-API route in the application
+```rb
+# Specifies the number of `workers` to boot in clustered mode.
+# Workers are forked web server processes. If using threads and workers together
+# the concurrency of the application would be max `threads` * `workers`.
+# Workers do not work on JRuby or Windows (both of which do not support
+# processes).
+#
+workers ENV.fetch("WEB_CONCURRENCY") { 4 } ### CHANGE: Un-comment out this line; update the value to 4
 
-You can see what this command does locally by running it from your terminal:
+# Use the `preload_app!` method when specifying a `workers` number.
+# This directive tells Puma to first boot the application and load code
+# before forking the application. This takes advantage of Copy On Write
+# process behavior so workers use less memory.
+#
+preload_app! ### CHANGE: Un-comment out this line
+```
+
+Next, open the `config/environments/production.rb` file and find the following
+line:
+
+```rb
+config.public_file_server.enabled = ENV["RAILS_SERVE_STATIC_FILES"].present?
+```
+
+Update it to the following:
+
+```rb
+config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present? || ENV['RENDER'].present?
+```
+
+Finally, inside the `bin` folder create a `render-build.sh` script and copy the
+following into it:
+
+```sh
+#!/usr/bin/env bash
+# exit on error
+set -o errexit
+
+# Build commands for front end to create the production build
+rm -rf public
+npm install --prefix client && npm run build --prefix client
+cp -a client/build/. public/
+
+# Build commands for back end
+bundle install
+bundle exec rake db:migrate 
+bundle exec rake db:seed # if you have seed data, run this command for the initial deploy only to avoid duplicate records
+```
+
+Then run the following command in the terminal to update the permissions on the
+script and make sure it's executable:
 
 ```console
-$ npm run heroku-postbuild
+chmod a+x bin/render-build.sh
 ```
 
-The final output will end up in the `public` folder in the root of your project.
+Commit your changes and push them up to GitHub:
 
-After adding this `package.json` file, you should also create a
-[`Procfile`][procfile] in the root of your application, where you can also
-define more custom scripts that will run when your application is deployed:
-
-```txt
-web: bundle exec rails s
-release: bin/rake db:migrate
 ```
-
-This Procfile instructs Heroku to run our Rails server with `rails s`, and also
-to run any pending migrations when new code is pushed up.
-
-Finally, it's time to deploy! To deploy, first log in to your Heroku account
-using the Heroku CLI:
-
-```console
-$ heroku login
-```
-
-Create the new Heroku app:
-
-```console
-$ heroku create example-project
-```
-
-> Note: the name you choose for your project must be unique as it will show up
-> as part of the URL (`https://example-project.herokuapp.com`).
-
-Add the buildpacks for Heroku to build the React app on Node and run the Rails
-app on Ruby:
-
-```console
-$ heroku buildpacks:add heroku/nodejs --index 1
-$ heroku buildpacks:add heroku/ruby --index 2
-```
-
-To deploy, commit any pending changes to your code, and push to Heroku:
-
-```console
 $ git add .
-$ git commit -m 'Added configuration files'
-$ git push heroku main
+$ git commit -m 'Configure for Render'
+$ git push
 ```
 
-> Note: depending on your Git configuration, your default branch might be named
-> `master` or `main`. You can verify which by running
-> `git branch --show-current`. If it's `master`, you'll need to run
-> `git push heroku master` instead.
+### Creating the App Database
 
-When you push the code to Heroku, it will run a few commands to build the
-application in order based on the "buildpacks" we configured:
+Render allows users to create [multiple databases within a single PostgreSQL
+instance][multiple dbs] using the PostgreSQL interactive terminal,
+[`psql`][psql].
 
-- `heroku/nodejs`: will run the `heroku-postbuild` script defined in the
-  `package.json` file to build the React application
-- `heroku/rails`: will install all the Rails dependencies from the `Gemfile`
+Navigate to your PostgreSQL instance from the Render dashboard, click the
+"Connect" dropdown, then the External Connection tab, and copy the PSQL command.
+Paste it into your terminal and press enter. This command connects you to the
+remote PostgreSQL instance.
 
-Watch the output in the terminal to see what's happening. If any error messages
-appear, read them carefully to diagnose the issue and make the recommended
-changes, then commit and push your code again to retry the deployment.
+To create the database, run this SQL command:
 
-Any time you have changes to deploy, just make sure your changes are committed
-on the main branch of your repo, and push those changes to Heroku to deploy
-them.
-
-#### Check Your Work: Deploying
-
-You can view your deployed app in the browser with:
-
-```console
-$ heroku open
+```sql
+CREATE DATABASE new_db_name;
 ```
 
-You should see your React application in the browser. Try refreshing the page to
-see if the sessions logic and requests to the Rails API are working as they did
-when running the application locally.
+Now if you run `\l` from the PSQL prompt, you should see a table that includes
+your main PostgreSQL instance as well as the database you just created.
 
-You can also see details about your app from the
-[Heroku dashboard](https://dashboard.heroku.com/), and by running commands from
-the Heroku CLI. For example, you can view the server logs:
+Run `\q` to exit PSQL.
 
-```console
-$ heroku logs --tail
-```
+[multiple dbs]: https://render.com/docs/databases#multiple-databases-in-a-single-postgresql-instance
+[psql]: https://www.postgresql.org/docs/current/app-psql.html
 
-Press `control + c` to exit the logs. You can also run a Rails console and other
-Rails commands on the production server with `heroku run`:
+### Creating the Render Web Service
 
-```console
-$ heroku run rails c
-```
+To deploy, click the "New +" button in Render and select "Web Service". You'll
+see a list of all the repositories in your GitHub account. Find the repo for the
+example project and click the "Select" button.
 
-#### Configuring React and Rails for Client-Side Routing
+In the page that opens, enter a name for your app and make sure the Environment
+is set to Ruby.
+
+Scroll down and set the Build Command to `./bin/render-build.sh` and the Start
+Command to `bundle exec puma -C config/puma.rb`.
+
+Open a separate tab in your browser, navigate to the Render dashboard, and click
+on your PostgreSQL instance. Scroll down to the "Connection" section, find the
+"Internal Database URL", and copy it.
+
+Return to the other tab. Scroll down and click the "Advanced" button, then click
+"Add Environment Variable." Enter `DATABASE_URL` as the key, then paste in the
+URL you just copied as the value. Note that the URL will end with the name you
+gave your PostgreSQL instance when you initially created it; be sure to remove
+that name and replace it with the name of the database you created in the last
+section.
+
+Click "Add Environment Variable" again. Add `RAILS_MASTER_KEY` as the key. The
+value is in the `config/master.key` file in your app's files. Copy the value and
+paste it in.
+
+The completed page should look something like this:
+
+![Web service settings](https://curriculum-content.s3.amazonaws.com/phase-4/project-template/web-service-settings.png)
+
+Scroll down to the bottom of the page and click "Create Web Service". The deploy
+process will begin automatically.
+
+### Check Your Work: Deploying
+
+Once the deploy process has completed, click on your app's URL in the upper left
+corner. Once the page has loaded (which may take a few moments), you should see
+your deployed app in the browser. If you get a "Page not found" error, wait a
+few minutes and refresh the page.
+
+## Configuring React and Rails for Client-Side Routing
 
 In many React applications, it's helpful to use React Router to handle
 client-side routing. Client-side routing means that a user should be able to
-navigate to the React application; load all the HTML/CSS/JavaScript code just
-**once**; and then click through links in our site to navigate different pages
+navigate to the React application, load all the HTML/CSS/JavaScript code just
+**once**, and then click through links in our site to navigate different pages
 without making another request to the server for a new HTML document.
 
 To install React Router, run:
@@ -859,7 +850,7 @@ Make a request to `http://localhost:4000` and `http://localhost:4000/testing`.
 Both routes work just fine because we're running a separate server for React.
 
 **However**, when we're running React within the Rails application after
-deploying, we also have routes defined for our Rails API; and Rails will be
+deploying, we also have routes defined for our Rails API, and Rails will be
 responsible for all the routing logic in our application. There will be only one
 server running: the Rails server; all the React code will run client-side in the
 browser.
@@ -917,79 +908,23 @@ This action has just one job: to render the HTML file for our React application!
 Note that the `FallbackController` must inherit from `ActionController::Base` in
 order to render HTML.
 
-#### Check Your Work: Client-Side Routing
+### Check Your Work: Client-Side Routing
 
-You can test out if the new code for handling client-side routing is working
-locally by building a production version of your React application and running
-the Rails server. To do this, you can use the same `heroku-postbuild` script
-locally as Heroku will run in production to build the React project:
-
-```console
-$ npm run heroku-postbuild
-```
-
-Then, run the Rails server:
-
-```console
-$ rails s
-```
-
-Now, visiting [http://localhost:3000](http://localhost:3000) (**not 4000**) will
-show the production version of the React application, served from the
-`public/index.html` file!
-
-You should also be able to visit other client-side routes, like
-[http://localhost:3000/testing](http://localhost:3000/testing), to verify that
-the fallback route configuration is working.
-
-Finally, commit and push your code to Heroku:
+Test your client-side routes in the deployed application by first committing and
+pushing your code to GitHub:
 
 ```console
 $ git add .
 $ git commit -m 'Configured client-side routing'
-$ git push heroku main
+$ git push
 ```
 
-Test your client-side routes in the deployed application once the new version is
-built and released:
+Then redeploy the app by going to the example project's page in the Render
+dashboard, clicking the "Manual Deploy" button, and selecting "Deploy latest
+commit".
 
-- `https://example-project.herokuapp.com`
-- `https://example-project.herokuapp.com/testing`
-
-### GitHub
-
-First, [create a new remote repository][create repo] on GitHub. Head to
-[github.com](https://github.com) and click the **+** icon in the top-right
-corner and follow the steps to create a new repository. **Important**: don't
-check any of the options such as 'Add a README file', 'Add a .gitignore file',
-etc — since you're importing an existing repository, creating any of those files
-on GitHub will cause issues.
-
-[create repo]:
-  https://docs.github.com/en/github/importing-your-projects-to-github/importing-source-code-to-github/adding-an-existing-project-to-github-using-the-command-line#adding-a-project-to-github-without-github-cli
-
-If you're working with a partner, [add them as a collaborator][add collaborator]
-on GitHub. From your repo on GitHub, go to Settings > Manage Access > Invite a
-collaborator and enter your partner's username. Once your partner has access,
-they should git **clone** (not fork) the repository.
-
-[add collaborator]:
-  https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-user-account/managing-access-to-your-personal-repositories/inviting-collaborators-to-a-personal-repository
-
-Finally, connect the GitHub remote repository to your local repository and push
-up your code:
-
-```console
-$ git remote add origin git@github.com:your-username/your-repo-name.git
-$ git push -u origin main
-```
-
-You can also [configure automatic deployments to Heroku][auto deploy] so that
-any time you push a new commit to your main branch on GitHub, it will trigger a
-new deployment on Heroku! Otherwise, you can continue using
-`git push heroku main` to deploy new releases.
-
-[auto deploy]: https://devcenter.heroku.com/articles/github-integration
+Once the new version has finished deploying, test your client-side routes in the
+deployed app.
 
 ---
 
@@ -1002,13 +937,13 @@ In this guide, you:
 - Created a new Rails API application
 - Configured cookies and sessions
 - Added a React frontend
+- Set up a GitHub repository
 - Configured your application for deployment
 - Tested your application locally and in production
-- Set up a GitHub repository
 
 From here on out, as you continue adding features, make sure to push your
-changes up to GitHub and to Heroku regularly, and check that your features work
-in the production environment as you go.
+changes up to GitHub, deploy to Render, and check that your features work in the
+production environment as you go.
 
 You should also make sure to update your project's README file with details
 about your project.
@@ -1021,11 +956,11 @@ We'll let you take it from here. Good luck!
 
 - [Rails/React project template][project template]
 - [Proxying API Requests in Create React App][proxy]
-- [Heroku Node Support](https://devcenter.heroku.com/articles/nodejs-support)
-- [Heroku Rails Support](https://devcenter.heroku.com/articles/getting-started-with-rails6)
-- [Heroku Procfile][procfile]
+- [Getting Started with Ruby on Rails on Render][getting started with rails]
+- [Render Databases Guide][databases guide]
 
 [project template]:
   https://github.com/learn-co-curriculum/project-template-react-rails-api
 [proxy]: https://create-react-app.dev/docs/proxying-api-requests-in-development/
-[procfile]: https://devcenter.heroku.com/articles/procfile
+[getting started with rails]: https://render.com/docs/deploy-rails
+[databases guide]: https://render.com/docs/databases
